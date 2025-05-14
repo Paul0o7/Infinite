@@ -1,17 +1,21 @@
 class InteractiveNarrative {
-    constructor(narrativeData, playerDivId, promptContainerId, promptTextId, decisionContainerId, restartButtonId) {
+    constructor(narrativeData, playerDivId, promptContainerId, promptTextId, decisionContainerId, restartButtonId, goBackButtonId) {
         this.narrative = narrativeData;
         this.playerDivId = playerDivId;
         this.promptContainer = document.getElementById(promptContainerId);
         this.promptTextElement = document.getElementById(promptTextId);
         this.decisionContainer = document.getElementById(decisionContainerId);
         this.restartButton = document.getElementById(restartButtonId);
+        this.goBackButton = document.getElementById(goBackButtonId); // New button
         this.player = null;
-        this.currentVideoId = Object.keys(this.narrative)[0]; // Start with the first video
+        this.currentVideoId = Object.keys(this.narrative)[0];
+        this.lastChoiceVideoId = null; // To track the video before a choice
 
-        // ADD THIS:  Attach the event listener here!
         if (this.restartButton) {
             this.restartButton.addEventListener('click', () => this.restart());
+        }
+        if (this.goBackButton) {
+            this.goBackButton.addEventListener('click', () => this.goBack());
         }
     }
 
@@ -49,11 +53,16 @@ class InteractiveNarrative {
     }
 
     playNext(videoId) {
+        const currentData = this.narrative[this.currentVideoId];
+        if (currentData && currentData.type === 'choice_intro') {
+            this.lastChoiceVideoId = this.currentVideoId; // Store the choice point
+        }
         this.currentVideoId = videoId;
         this.player.loadVideoById(videoId);
         this.promptContainer.style.display = 'none';
         this.decisionContainer.innerHTML = '';
         if (this.restartButton) this.restartButton.style.display = 'none';
+        if (this.goBackButton) this.goBackButton.style.display = 'none';
         console.log("Playing:", videoId);
     }
 
@@ -83,7 +92,8 @@ class InteractiveNarrative {
                 this.playNext(data.next);
             } else if (data.type === 'end') {
                 if (this.restartButton) this.restartButton.style.display = 'block';
-                console.log("Show restart.");
+                if (this.lastChoiceVideoId && this.goBackButton) this.goBackButton.style.display = 'block';
+                console.log("Show restart and go back.");
             }
         }
     }
@@ -100,7 +110,14 @@ class InteractiveNarrative {
     }
 
     restart() {
+        this.lastChoiceVideoId = null; // Reset last choice on restart
         this.playNext(Object.keys(this.narrative)[0]);
+    }
+
+    goBack() {
+        if (this.lastChoiceVideoId) {
+            this.playNext(this.lastChoiceVideoId);
+        }
     }
 }
 
@@ -146,13 +163,8 @@ const interactiveStory = new InteractiveNarrative(
     'prompt-container',
     'prompt-text',
     'decision-container',
-    'restartButton'
+    'restartButton',
+    'goBackButton' // Pass the new button ID
 );
 
 interactiveStory.init();
-
-// REMOVE this entire block of code:
-// const topRightRestartButton = document.getElementById('topRightRestartButton');
-// if (topRightRestartButton) {
-//     topRightRestartButton.addEventListener('click', () => interactiveStory.restart());
-// }
