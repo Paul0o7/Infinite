@@ -1,0 +1,164 @@
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #111; /* Dark background */
+    color: #eee; /* Light text color */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh; /* Ensure full viewport height */
+    overflow-x: hidden; /* Prevent horizontal scroll for star animation */
+}
+
+/* Starry background effect (using CSS gradients) */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255, 255, 255, 0.05) 2px, transparent 2px);
+    background-size: 20px 20px, 30px 30px;
+    animation: moveStars 50s linear infinite;
+    z-index: -1; /* Behind other content */
+}
+
+@keyframes moveStars {
+    from { background-position: 0 0, 0 0; }
+    to { background-position: -100% -100%, -60% -60%; }
+}
+
+h1 {
+    color: #00ccff; /* Futuristic blue */
+    font-family: 'Orbitron', sans-serif; /* Cool, futuristic font (you might need to include this) */
+    margin-bottom: 20px;
+    text-shadow: 0 0 10px #00ccff;
+    text-align: center;
+}
+
+h2 {
+    color: #aaa;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+h3 {
+    color: #bbb;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#video-container {
+    width: 95%;
+    max-width: 800px;
+    margin-bottom: 30px;
+    background-color: rgba(0, 0, 0, 0.7); /* Slightly transparent black container */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 20px rgba(0, 204, 255, 0.3);
+}
+
+#player {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background-color: black;
+    border-radius: 4px;
+}
+
+#prompt-container {
+    margin-top: 20px;
+    text-align: center;
+}
+
+#prompt-text {
+    margin-bottom: 15px;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ddd;
+}
+
+#decision-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+button {
+    padding: 12px 25px;
+    font-size: 1em;
+    border: 2px solid #00ccff;
+    background-color: transparent;
+    color: #00ccff;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 10px rgba(0, 204, 255, 0.2);
+    margin-bottom: 10px;
+}
+
+button:hover {
+    background-color: #00ccff;
+    color: #111;
+    box-shadow: 0 0 15px rgba(0, 204, 255, 0.5);
+}
+
+.choice-button {
+    padding: 12px 25px;
+    font-size: 1em;
+    margin: 10px;
+    cursor: pointer;
+    border: 1px solid #fff; /* White border */
+    background-color: #000; /* Black background */
+    color: #fff; /* White text */
+    border-radius: 5px;
+    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+}
+
+.choice-button:hover {
+    background-color: #333; /* Darker gray on hover */
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+#playButton {
+    /* Inherits button styles */
+    display: block; /* Override inline style from HTML */
+    margin: 20px auto; /* Center the button */
+}
+
+#restart-button {
+    /* Inherits button styles */
+}
+
+@media (max-width: 600px) {
+    h1 {
+        font-size: 2.5em;
+        margin-bottom: 15px;
+    }
+
+    h2 {
+        font-size: 1.1em;
+        margin-bottom: 8px;
+    }
+
+    h3 {
+        font-size: 1.2em;
+        margin-top: 15px;
+        margin-bottom: 8px;
+    }
+
+    button, .choice-button, #playButton {
+        padding: 10px 20px;
+        font-size: 0.9em;
+    }
+
+    #prompt-text {
+        font-size: 1.1em;
+    }
+}
