@@ -1,164 +1,152 @@
-const narrative = {
-    // Start
-    "FAyKDaXEAgc": { next: "BB49x_uMlGA" },
+class InteractiveNarrative {
+    constructor(narrativeData, playerDivId, promptContainerId, promptTextId, decisionContainerId, restartButtonId) {
+        this.narrative = narrativeData;
+        this.playerDivId = playerDivId;
+        this.promptContainer = document.getElementById(promptContainerId);
+        this.promptTextElement = document.getElementById(promptTextId);
+        this.decisionContainer = document.getElementById(decisionContainerId);
+        this.restartButton = document.getElementById(restartButtonId);
+        this.player = null;
+        this.currentVideoId = Object.keys(this.narrative)[0]; // Start with the first video
+    }
 
-    // First choice
-    "BB49x_uMlGA": {
-        decisionPoint: true,
-        prompt: "What will you do first?",
+    init() {
+        this.loadYouTubeIframeAPI();
+    }
+
+    loadYouTubeIframeAPI() {
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+        window.onYouTubeIframeAPIReady = () => this.onYouTubeIframeAPIReady();
+    }
+
+    onYouTubeIframeAPIReady() {
+        this.player = new YT.Player(this.playerDivId, {
+            height: '360',
+            width: '640',
+            videoId: this.currentVideoId,
+            playerVars: {
+                'autoplay': 1,
+                'controls': 1,
+                'mute': 1
+            },
+            events: {
+                'onReady': (event) => this.onPlayerReady(event),
+                'onStateChange': (event) => this.onPlayerStateChange(event)
+            }
+        });
+    }
+
+    onPlayerReady(event) {
+        console.log("Player is ready. Initial video:", this.currentVideoId);
+    }
+
+    playNext(videoId) {
+        this.currentVideoId = videoId;
+        this.player.loadVideoById(videoId);
+        this.promptContainer.style.display = 'none';
+        this.decisionContainer.innerHTML = '';
+        if (this.restartButton) this.restartButton.style.display = 'none';
+        console.log("Playing:", videoId);
+    }
+
+    showChoices(choicesObject, promptText) {
+        this.promptContainer.style.display = 'block';
+        this.promptTextElement.textContent = promptText;
+        this.decisionContainer.innerHTML = '';
+        for (const choiceText in choicesObject) {
+            const nextVideoId = choicesObject[choiceText];
+            const button = document.createElement('button');
+            button.classList.add('choice-button');
+            button.textContent = choiceText;
+            button.addEventListener('click', () => this.playNext(nextVideoId));
+            this.decisionContainer.appendChild(button);
+        }
+        console.log("Showing choices for:", this.currentVideoId);
+    }
+
+    handleVideoEnd() {
+        const data = this.narrative[this.currentVideoId];
+        console.log("Ended:", this.currentVideoId, data);
+        if (data) {
+            if (data.type === 'choice_intro') {
+                console.log("Handling choice intro:", this.currentVideoId);
+                this.showChoices(data.choices, data.prompt);
+            } else if (data.next) {
+                this.playNext(data.next);
+            } else if (data.type === 'end') {
+                if (this.restartButton) this.restartButton.style.display = 'block';
+                console.log("Show restart.");
+            }
+        }
+    }
+
+    onPlayerStateChange(event) {
+        if (event.data === YT.PlayerState.ENDED) {
+            const videoId = this.player.getVideoData().video_id;
+            const data = this.narrative[videoId];
+            console.log("Video Ended Event:", videoId, data);
+            this.handleVideoEnd();
+        } else if (event.data === YT.PlayerState.PLAYING) {
+            console.log("Video Playing:", this.player.getVideoData().video_id);
+        }
+    }
+
+    restart() {
+        this.playNext(Object.keys(this.narrative)[0]);
+    }
+}
+
+const narrativeData = {
+    "EaB606bZ1pc": { type: 'content', next: "jaEfA2Pa7pk_A" },
+    "jaEfA2Pa7pk_A": {
+        type: 'choice_intro',
+        prompt: "Robert it is your turn to choose:",
         choices: {
-            "Explore the Woods": "w5QfOa1HNHc",
-            "Check the House": "6mvbxaXNxjQ"
+            "Choice A": "tiMOgfZnLTY",
+            "Choice B": "7GU4ZUUbefc"
         }
     },
-
-    // Path 1: Woods
-    "w5QfOa1HNHc": { next: "FAyKDaXEAgc_WOODS_NEXT" },
-    "FAyKDaXEAgc_WOODS_NEXT": {
-        decisionPoint: true,
-        prompt: "The path splits. Which way?",
+    "tiMOgfZnLTY": { type: 'content', next: "jaEfA2Pa7pk_C" },
+    "jaEfA2Pa7pk_C": {
+        type: 'choice_intro',
+        prompt: "Robert it is your turn to choose:",
         choices: {
-            "Go Left": "w5QfOa1HNHc_LEFT",
-            "Go Right": "6mvbxaXNxjQ_RIGHT"
+            "Choice C": "XHpmn2imQ48",
+            "Choice D": "3JpqUWX84pc"
         }
     },
-    "w5QfOa1HNHc_LEFT": { next: "w5QfOa1HNHc_SEMI_END" },
-    "w5QfOa1HNHc_SEMI_END": { next: "w5QfOa1HNHc_END" },
-    "w5QfOa1HNHc_END": { /* Restart */ },
-    "6mvbxaXNxjQ_RIGHT": { next: "6mvbxaXNxjQ_CONTENT" },
-    "6mvbxaXNxjQ_CONTENT": { next: "6mvbxaXNxjQ_END" },
-    "6mvbxaXNxjQ_END": { /* Restart */ },
-
-    // Path 2: House
-    "6mvbxaXNxjQ": { next: "BB49x_uMlGA_HOUSE_CHOICE" },
-    "BB49x_uMlGA_HOUSE_CHOICE": {
-        decisionPoint: true,
-        prompt: "What do you investigate?",
+    "XHpmn2imQ48": { type: 'content', next: "WD2mvN_LIfQ" },
+    "WD2mvN_LIfQ": { type: 'end' },
+    "7GU4ZUUbefc": { type: 'content', next: "jaEfA2Pa7pk_E" },
+    "jaEfA2Pa7pk_E": {
+        type: 'choice_intro',
+        prompt: "Robert it is your turn to choose:",
         choices: {
-            "The Attic": "FAyKDaXEAgc_ATTIC",
-            "The Basement": "BB49x_uMlGA_BASEMENT"
+            "Choice E": "4IoGDWM2RV0",
+            "Choice F": "objvlXdSi28"
         }
     },
-    "FAyKDaXEAgc_ATTIC": { next: "FAyKDaXEAgc_SEMI_END_ATTIC" },
-    "FAyKDaXEAgc_SEMI_END_ATTIC": { next: "FAyKDaXEAgc_END_ATTIC" },
-    "FAyKDaXEAgc_END_ATTIC": { /* Restart */ },
-    "BB49x_uMlGA_BASEMENT": { next: "BB49x_uMlGA_END_BASEMENT" },
-    "BB49x_uMlGA_END_BASEMENT": { /* Restart */ }
+    "objvlXdSi28": { type: 'content', next: "YU8ApFsz9BM" },
+    "YU8ApFsz9BM": { type: 'end' },
+    "3JpqUWX84pc": { type: 'content', next: null },
+    "4IoGDWM2RV0": { type: 'content', next: null }
 };
 
-let player;
-let currentVideoId;
-const playerDivId = 'player';
-const promptContainer = document.getElementById('prompt-container');
-const promptTextElement = document.getElementById('prompt-text');
-const decisionContainer = document.getElementById('decision-container');
-const playButton = document.getElementById('playButton');
-let playButtonClicked = false; // Flag to track if the button was clicked
+const interactiveStory = new InteractiveNarrative(
+    narrativeData,
+    'player',
+    'prompt-container',
+    'prompt-text',
+    'decision-container',
+    'restartButton'
+);
 
-function onYouTubeIframeAPIReady() {
-    console.log("YouTube API is ready!");
-    player = new YT.Player(playerDivId, {
-        height: '360',
-        width: '640',
-        videoId: getFirstVideoId(),
-        playerVars: {
-            'autoplay': 0, // No initial autoplay
-            'controls': 1, // Enable the player controls
-            'mute': 1
-        },
-        events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
-    });
+interactiveStory.init();
+
+const topRightRestartButton = document.getElementById('topRightRestartButton');
+if (topRightRestartButton) {
+    topRightRestartButton.addEventListener('click', () => interactiveStory.restart());
 }
-
-function onPlayerReady(event) {
-    console.log("Player is ready.");
-    const firstVideoId = getFirstVideoId();
-    loadAndPlayVideo(firstVideoId); // Load the first video here
-    currentVideoId = firstVideoId; // Set currentVideoId here
-    console.log("Initial video loaded:", currentVideoId);
-    if (playButton) {
-        playButton.style.display = 'none'; // Hide the button initially
-    }
-}
-
-function onPlayerStateChange(event) {
-    if (event.data === YT.PlayerState.ENDED) {
-        console.log("Video ended:", currentVideoId);
-        const currentVideoData = narrative[currentVideoId];
-        console.log("Narrative data for ended video:", currentVideoData);
-        if (currentVideoData && currentVideoData.decisionPoint) {
-            console.log("Showing decision for:", currentVideoId);
-            promptContainer.style.display = 'block';
-            promptTextElement.textContent = currentVideoData.prompt;
-            decisionContainer.innerHTML = '';
-            for (const choiceText in currentVideoData.choices) {
-                const nextVideoId = currentVideoData.choices[choiceText];
-                const button = document.createElement('button');
-                button.classList.add('choice-button');
-                button.textContent = choiceText;
-                button.addEventListener('click', () => {
-                    console.log("Choice made:", choiceText, "leads to", nextVideoId);
-                    loadAndPlayVideo(nextVideoId);
-                });
-                decisionContainer.appendChild(button);
-            }
-        } else if (currentVideoData && currentVideoData.next) {
-            const nextVideoId = currentVideoData.next;
-            console.log("Moving to next video:", nextVideoId, "after", currentVideoId);
-            setTimeout(() => {
-                loadAndPlayVideo(nextVideoId);
-            }, 3000);
-        } else {
-            // Ending video
-            console.log("End reached:", currentVideoId, "- Showing restart button.");
-            const restartButton = document.createElement('button');
-            restartButton.textContent = "Restart";
-            restartButton.style.padding = '12px 25px';
-            restartButton.style.fontSize = '1em';
-            restartButton.style.cursor = 'pointer';
-            restartButton.style.marginTop = '20px';
-            restartButton.addEventListener('click', () => {
-                window.location.reload(); // Reload the page to restart
-            });
-            document.getElementById('video-container').appendChild(restartButton);
-            if (playButton) playButton.style.display = 'none'; // Hide any lingering play buttons
-        }
-    } else if (event.data === YT.PlayerState.PLAYING) {
-        console.log("Video playing:", currentVideoId);
-    }
-}
-
-function loadYouTubeIframeAPI() {
-    const tag = document.createElement('script');
-    tag.src = "https://www.youtube.com/iframe_api"; // Use HTTPS
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-}
-
-function getFirstVideoId() {
-    const firstKey = Object.keys(narrative)[0];
-    console.log("First video ID:", firstKey);
-    return firstKey;
-}
-
-function loadAndPlayVideo(videoId) {
-    if (player && player.loadVideoById) {
-        console.log("Loading video:", videoId);
-        player.loadVideoById(videoId);
-        currentVideoId = videoId;
-        promptContainer.style.display = 'none';
-        decisionContainer.innerHTML = '';
-        // We don't want to hide the play button here anymore, as the initial play is automatic
-    } else {
-        console.error("Player not yet initialized.");
-    }
-}
-
-function handleVideoEnd(videoId) {
-    // The logic for handling video end is now within the onPlayerStateChange function.
-}
-
-loadYouTubeIframeAPI();
