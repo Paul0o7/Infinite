@@ -8,6 +8,11 @@ class InteractiveNarrative {
         this.restartButton = document.getElementById(restartButtonId);
         this.player = null;
         this.currentVideoId = Object.keys(this.narrative)[0]; // Start with the first video
+
+        // ADD THIS:  Attach the event listener here!
+        if (this.restartButton) {
+            this.restartButton.addEventListener('click', () => this.restart());
+        }
     }
 
     init() {
@@ -146,7 +151,8 @@ const interactiveStory = new InteractiveNarrative(
 
 interactiveStory.init();
 
-const topRightRestartButton = document.getElementById('topRightRestartButton');
-if (topRightRestartButton) {
-    topRightRestartButton.addEventListener('click', () => interactiveStory.restart());
-}
+// REMOVE this entire block of code:
+// const topRightRestartButton = document.getElementById('topRightRestartButton');
+// if (topRightRestartButton) {
+//     topRightRestartButton.addEventListener('click', () => interactiveStory.restart());
+// }
