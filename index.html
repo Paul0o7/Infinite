@@ -5,12 +5,16 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>An Interactive Journey</h1>
-    <div id="video-container">
-        <h2>The Story Unfolds</h2>
+    <h1>Infinite</h1>
+
+    <div id="start-screen">
+        <h2>Infinite</h2>
+        <button id="playButton">Begin</button>
+    </div>
+
+    <div id="video-container" style="display: none;">  <h2>The Story Unfolds</h2>
         <div id="player"></div>
         <button id="nextButton" style="display: none;">Next</button>
-       <!--< button onclick="if (interactiveStory) { interactiveStory.onPlayerStateChange({ data: YT.PlayerState.ENDED }); }">Simulate Choice Intro Ended</button> !-->
         <div id="prompt-container" style="display: none;">
             <h3>Make a Choice</h3>
             <p id="prompt-text"></p>
@@ -19,6 +23,7 @@
         <button id="restartButton" style="display: none;">Restart</button>
         <button id="goBackButton" style="display: none;">Go Back</button>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
