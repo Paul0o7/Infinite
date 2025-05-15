@@ -1,5 +1,5 @@
 class InteractiveNarrative {
-    constructor(narrativeData, playerDivId, promptContainerId, promptTextId, decisionContainerId, restartButtonId, goBackButtonId) {
+    constructor(narrativeData, playerDivId, promptContainerId, promptTextId, decisionContainerId, restartButtonId, goBackButtonId, startScreenId) {
         this.narrative = narrativeData;
         this.playerDivId = playerDivId;
         this.promptContainer = document.getElementById(promptContainerId);
@@ -7,17 +7,28 @@ class InteractiveNarrative {
         this.decisionContainer = document.getElementById(decisionContainerId);
         this.restartButton = document.getElementById(restartButtonId);
         this.goBackButton = document.getElementById(goBackButtonId);
+        this.startScreen = document.getElementById(startScreenId);
         this.player = null;
         this.currentVideoId = Object.keys(this.narrative)[0];
         this.lastChoiceVideoId = null;
-        this.history = []; // To keep track of the video history for "Go Back"
+        this.history = [];
 
         if (this.restartButton) this.restartButton.addEventListener('click', () => this.restart());
         if (this.goBackButton) this.goBackButton.addEventListener('click', () => this.goBack());
     }
 
     init() {
-        this.loadYouTubeIframeAPI();
+        const playButton = document.getElementById('playButton');
+        const videoContainer = document.getElementById('video-container');
+
+        videoContainer.style.display = 'none';
+        this.promptContainer.style.display = 'none';
+
+        playButton.addEventListener('click', () => {
+            this.startScreen.style.display = 'none';
+            videoContainer.style.display = 'block';
+            this.loadYouTubeIframeAPI();
+        });
     }
 
     loadYouTubeIframeAPI() {
@@ -36,7 +47,9 @@ class InteractiveNarrative {
             playerVars: {
                 'autoplay': 1,
                 'controls': 1,
-                'mute': 0
+                'mute': 0,
+                'playsinline': 1,
+                'rel': 0
             },
             events: {
                 'onReady': (event) => this.onPlayerReady(event),
@@ -65,6 +78,14 @@ class InteractiveNarrative {
             this.player.loadVideoById(nextData.videoId);
             this.showChoices(nextData.choices, nextData.prompt);
             console.log("Playing choice video:", nextData.videoId, "with choices.");
+        } else if (nextData && nextData.type === 'end') {
+            this.currentVideoId = videoId;
+            this.player.loadVideoById(videoId);
+            this.promptContainer.style.display = 'none';
+            this.decisionContainer.innerHTML = '';
+            if (this.restartButton) this.restartButton.style.display = 'block';
+            if (this.history.length > 0 && this.goBackButton) this.goBackButton.style.display = 'block';
+            console.log("End video:", videoId, " - Showing restart.");
         }
     }
 
@@ -72,54 +93,60 @@ class InteractiveNarrative {
         this.promptContainer.style.display = 'block';
         this.promptTextElement.textContent = promptText;
         this.decisionContainer.innerHTML = '';
-        for (const choiceText in choicesObject) {
-            const nextVideoId = choicesObject[choiceText];
+
+        const choicesArray = Object.entries(choicesObject);
+        for (let i = choicesArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [choicesArray[i], choicesArray[j]] = [choicesArray[j], choicesArray[i]];
+        }
+
+        choicesArray.forEach(([choiceText, nextVideoId]) => {
             const button = document.createElement('button');
             button.classList.add('choice-button');
             button.textContent = choiceText;
             button.addEventListener('click', () => {
                 const currentVideoData = this.narrative[this.currentVideoId];
                 if (currentVideoData && currentVideoData.type === 'choice_trigger') {
-                    this.lastChoiceVideoId = this.currentVideoId; // Store the choice point video ID
+                    this.lastChoiceVideoId = this.currentVideoId;
                 } else {
-                    // If the previous video wasn't a choice trigger, we might need to find the last one.
-                    // For simplicity, we'll rely on when showChoices is called.
-                    this.lastChoiceVideoId = this.history[this.history.length -1] || Object.keys(this.narrative)[0];
+                    this.lastChoiceVideoId = this.history[this.history.length - 1] || Object.keys(this.narrative)[0];
                 }
                 this.playNext(nextVideoId);
             });
             this.decisionContainer.appendChild(button);
-        }
-        console.log("Showing choices for:", this.currentVideoId);
+        });
+
+        console.log("Showing randomized choices for:", this.currentVideoId);
     }
 
     handleVideoEnd() {
-        const data = this.narrative[this.currentVideoId];
-        console.log("Ended:", this.currentVideoId, data);
+        const videoId = this.player.getVideoData().video_id;
+        const data = this.narrative[
+            Object.keys(this.narrative).find(key => this.narrative[key].videoId === videoId || key === videoId)
+        ];
+        console.log("Video Ended Event:", videoId, data);
         if (data && data.next) {
             this.playNext(data.next);
         } else if (data && data.type === 'choice_trigger') {
-            // Choices are already shown in playNext for 'choice_trigger'
+            // Choices are already handled in playNext
         } else if (data && data.type === 'end') {
             if (this.restartButton) this.restartButton.style.display = 'block';
             if (this.history.length > 0 && this.goBackButton) this.goBackButton.style.display = 'block';
-            console.log("Show restart and go back.");
-        } else if (data && data.type === 'content' && !data.next) {
-            // Handle content videos that lead to a choice point (the next entry will be a choice_trigger)
-            const nextVideoId = Object.keys(this.narrative).find(key => this.narrative[key] === this.narrative[this.currentVideoId].next);
-            if (nextVideoId && this.narrative[this.narrative[this.currentVideoId].next].type === 'choice_trigger') {
-                this.playNext(this.narrative[this.currentVideoId].next);
+            console.log("Video ended (end type):", videoId, "- Showing buttons.");
+        } else {
+            const nextEntryKey = Object.keys(this.narrative).find(key => this.narrative[key] === data);
+            if (nextEntryKey && this.narrative[data.next] && this.narrative[data.next].type === 'choice_trigger') {
+                this.playNext(data.next);
+            } else if (data && data.type === 'content' && !data.next) {
+                if (this.restartButton) this.restartButton.style.display = 'block';
+                if (this.history.length > 0 && this.goBackButton) this.goBackButton.style.display = 'block';
+                console.log("Content video ended with no explicit next, showing buttons.");
             }
         }
     }
 
     onPlayerStateChange(event) {
         if (event.data === YT.PlayerState.ENDED) {
-            const videoId = this.player.getVideoData().video_id;
-            const data = this.narrative[
-                Object.keys(this.narrative).find(key => this.narrative[key].videoId === videoId || key === videoId)
-            ];
-            console.log("Video Ended Event:", videoId, data);
             this.handleVideoEnd();
         } else if (event.data === YT.PlayerState.PLAYING) {
             console.log("Video Playing:", this.player.getVideoData().video_id);
@@ -134,8 +161,8 @@ class InteractiveNarrative {
 
     goBack() {
         if (this.history.length > 1) {
-            this.history.pop(); // Remove the current video from history
-            const previousVideoId = this.history.pop(); // Get the video before
+            this.history.pop();
+            const previousVideoId = this.history.pop();
             this.playNext(previousVideoId);
         } else if (this.history.length === 1) {
             this.playNext(this.history[0]);
@@ -195,9 +222,8 @@ const narrativeData = {
             "Greet Self": "yw7qUqrIni0"
         }
     },
-    "lYQrd12eK98": { type: 'content', next: "TRUE_ENDING" },
-    "yw7qUqrIni0": { type: 'end' },
-    "TRUE_ENDING": { type: 'end' }
+    "lYQrd12eK98": { type: 'end' },
+    "yw7qUqrIni0": { type: 'end' }
 };
 
 const interactiveStory = new InteractiveNarrative(
@@ -207,7 +233,8 @@ const interactiveStory = new InteractiveNarrative(
     'prompt-text',
     'decision-container',
     'restartButton',
-    'goBackButton'
+    'goBackButton',
+    'start-screen'
 );
 
 interactiveStory.init();
