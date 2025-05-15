@@ -180,7 +180,7 @@ const narrativeData = {
     "IE32WVhJWDk_CHOICE_1": {
         type: 'choice_trigger',
         videoId: "IE32WVhJWDk",
-        prompt: "Robert it is your turn to choose (first time):",
+        prompt: "Robert it is your turn to choose:",
         choices: {
             "Save the future": "1XD6sydTSpg",
             "Ignore the message": "xecgqAqFWSc"
@@ -192,7 +192,7 @@ const narrativeData = {
     "IE32WVhJWDk_CHOICE_2": {
         type: 'choice_trigger',
         videoId: "IE32WVhJWDk",
-        prompt: "Robert it is your turn to choose (second time):",
+        prompt: "Robert it is your turn to choose:",
         choices: {
             "Sulk?": "NgNm6ZE96rk",
             "Beat Paul?": "yMtGyQ5DZ2A"
@@ -204,7 +204,7 @@ const narrativeData = {
     "IE32WVhJWDk_CHOICE_3": {
         type: 'choice_trigger',
         videoId: "IE32WVhJWDk",
-        prompt: "Robert it is your turn to choose (third time):",
+        prompt: "Robert it is your turn to choose:",
         choices: {
             "Timeline B?": "GMtMByfuu9Q",
             "Timeline A?": "0kDmYIe5t3Q"
@@ -216,7 +216,7 @@ const narrativeData = {
     "IE32WVhJWDk_CHOICE_4": {
         type: 'choice_trigger',
         videoId: "IE32WVhJWDk",
-        prompt: "Robert it is your turn to choose (fourth time):",
+        prompt: "Robert it is your turn to choose:",
         choices: {
             "Put on desk?": "lYQrd12eK98",
             "Greet Self": "yw7qUqrIni0"
