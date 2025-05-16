@@ -146,11 +146,16 @@ class InteractiveNarrative {
     }
 
     onPlayerStateChange(event) {
-        if (event.data === YT.PlayerState.ENDED) {
-            this.handleVideoEnd();
-        } else if (event.data === YT.PlayerState.PLAYING) {
-            console.log("Video Playing:", this.player.getVideoData().video_id);
-        }
+      if (event.data === YT.PlayerState.ENDED) {
+        this.player.stopVideo();
+        // Optionally, call handleVideoEnd here if needed immediately after stopping
+        this.handleVideoEnd(this.player.getVideoData().video_id);
+        
+      } else if (event.data === YT.PlayerState.PLAYING) {
+        console.log("Video Playing:", this.player.getVideoData().video_id);
+        
+         }
+      
     }
 
     restart() {
