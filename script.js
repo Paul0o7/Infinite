@@ -175,18 +175,18 @@ class InteractiveNarrative {
 }
 
 const narrativeData = {
-    "6BVODi60Iwo": { type: 'content', next: "IE32WVhJWDk_CHOICE_1" },
+    "plw1Oauw0aQ": { type: 'content', next: "IE32WVhJWDk_CHOICE_1" },
 
     "IE32WVhJWDk_CHOICE_1": {
         type: 'choice_trigger',
         videoId: "IE32WVhJWDk",
         prompt: "Robert it is your turn to choose:",
         choices: {
-            "Save the future": "1XD6sydTSpg",
+            "Save the future": "ODKM_v95_MM",
             "Ignore the message": "xecgqAqFWSc"
         }
     },
-    "1XD6sydTSpg": { type: 'content', next: "IE32WVhJWDk_CHOICE_2" },
+    "ODKM_v95_MM": { type: 'content', next: "IE32WVhJWDk_CHOICE_2" },
     "xecgqAqFWSc": { type: 'end' },
 
     "IE32WVhJWDk_CHOICE_2": {
@@ -194,12 +194,12 @@ const narrativeData = {
         videoId: "IE32WVhJWDk",
         prompt: "Robert it is your turn to choose:",
         choices: {
-            "Sulk?": "NgNm6ZE96rk",
-            "Beat Paul?": "yMtGyQ5DZ2A"
+            "Sulk?": "9NcnJRtyKMQ",
+            "Beat Paul?": "P95uF0I2t6A"
         }
     },
-    "NgNm6ZE96rk": { type: 'content', next: "IE32WVhJWDk_CHOICE_3" },
-    "yMtGyQ5DZ2A": { type: 'end' },
+    "9NcnJRtyKMQ": { type: 'content', next: "IE32WVhJWDk_CHOICE_3" },
+    "P95uF0I2t6A": { type: 'end' },
 
     "IE32WVhJWDk_CHOICE_3": {
         type: 'choice_trigger',
@@ -207,10 +207,10 @@ const narrativeData = {
         prompt: "Robert it is your turn to choose:",
         choices: {
             "Timeline B?": "GMtMByfuu9Q",
-            "Timeline A?": "0kDmYIe5t3Q"
+            "Timeline A?": "vGQLiLTzeV0"
         }
     },
-    "0kDmYIe5t3Q": { type: 'end' },
+    "vGQLiLTzeV0": { type: 'end' },
     "GMtMByfuu9Q": { type: 'content', next: "IE32WVhJWDk_CHOICE_4" },
 
     "IE32WVhJWDk_CHOICE_4": {
