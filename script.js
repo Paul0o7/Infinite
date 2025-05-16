@@ -199,7 +199,7 @@ const narrativeData = {
         videoId: "IE32WVhJWDk",
         prompt: "Robert it is your turn to choose:",
         choices: {
-            "Embrace Responsability": "9NcnJRtyKMQ",
+            "Embrace Responsibility?": "9NcnJRtyKMQ",
             "Beat Paul?": "P95uF0I2t6A"
         }
     },
