@@ -223,11 +223,11 @@ const narrativeData = {
         videoId: "IE32WVhJWDk",
         prompt: "Robert it is your turn to choose:",
         choices: {
-            "Put on desk?": "lYQrd12eK98",
+            "Put on desk?": "gzhQ0cfL3h8",
             "Greet Self": "yw7qUqrIni0"
         }
     },
-    "lYQrd12eK98": { type: 'end' },
+    "gzhQ0cfL3h8": { type: 'end' },
     "yw7qUqrIni0": { type: 'end' }
 };
 
